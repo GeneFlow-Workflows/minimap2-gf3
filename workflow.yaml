@@ -7,7 +7,7 @@ class: workflow
 name: Minimap2 Short Read Workflow
 description: Minimap2 short read sequence alignment workflow
 git: https://github.com/geneflow-workflows/minimap2-gf3
-version: '2.22-01'
+version: '2.22-02'
 
 publish:
 - align
@@ -39,6 +39,7 @@ apps:
       output:
     images:
       minimap2_docker: quay.io/biocontainers/minimap2:2.22--h5bf99c6_0
+      minimap2_singularity: docker://quay.io/biocontainers/minimap2:2.22--h5bf99c6_0
     execution:
       pre:
       - run: mkdir -p ${LOG_FULL}
@@ -49,6 +50,17 @@ apps:
         commands:
         - type: docker
           image: minimap2_docker
+          run: >-
+            minimap2 -ax sr -t ${THREADS} ^${REFERENCE} ^${INPUT} ^${PAIR} 
+            > ${OUTPUT_FULL}
+            2> ${LOG_FULL}/${OUTPUT_BASE}-minimap2-align.stderr
+
+      - name: singularity
+        if: 
+        - in_path: singularity
+        commands:
+        - type: singularity
+          image: minimap2_singularity
           run: >-
             minimap2 -ax sr -t ${THREADS} ^${REFERENCE} ^${INPUT} ^${PAIR} 
             > ${OUTPUT_FULL}
